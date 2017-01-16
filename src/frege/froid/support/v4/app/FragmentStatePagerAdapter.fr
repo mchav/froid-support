@@ -1,0 +1,67 @@
+module froid.support.v4.app.FragmentStatePagerAdapter where
+
+import froid.support.v4.app.Fragment
+import froid.support.v4.app.FragmentManager
+
+data FragmentStatePagerAdapter = native android.support.v4.app.FragmentStatePagerAdapter
+
+data FspaDelegator = FspaDelegator {
+                      getItem  :: Maybe (MutableIO FragmentStatePagerAdapter -> Int -> IOMutable Fragment)
+                    , getCount :: Maybe (MutableIO FragmentStatePagerAdapter -> IO Int)
+                    }
+
+defaultFspaDelegator = FspaDelegator { getItem = Nothing, getCount = Nothing }
+
+native delegateFspa "froid.support.v4.app.FragmentStatePagerAdapter.delegate" :: FspaDelegator -> MutableIO FragmentManager -> STMutable RealWorld FragmentStatePagerAdapter
+
+native module where {
+    public static android.support.v4.app.FragmentStatePagerAdapter delegate(TFspaDelegator delegator, android.support.v4.app.FragmentManager fm) {
+        FregeFragmentStatePagerAdapter fspa = new FregeFragmentStatePagerAdapter(fm, delegator);
+        return (android.support.v4.app.FragmentStatePagerAdapter) fspa;
+    }
+
+    public static class FregeFragmentStatePagerAdapter extends android.support.v4.app.FragmentStatePagerAdapter {
+
+        TFspaDelegator delegator = null;
+        public FregeFragmentStatePagerAdapter(android.support.v4.app.FragmentManager fm, TFspaDelegator delegator) {
+            super(fm);
+            this.delegator = delegator;
+        }
+
+        @Override
+        public android.support.v4.app.Fragment getItem(int position) {
+            frege.prelude.PreludeBase.TMaybe<
+                Func.U<android.support.v4.app.FragmentStatePagerAdapter, Func.U<Integer, Func.U<RealWorld, android.support.v4.app.Fragment>>>
+            > getItemDelegator = TFspaDelegator.getItem(delegator);
+            PreludeBase.TMaybe.DJust<
+                Func.U<android.support.v4.app.FragmentStatePagerAdapter, Func.U<Integer, Func.U<RealWorld, android.support.v4.app.Fragment>>>
+            > justDelegator = getItemDelegator.asJust();
+            if (justDelegator == null) return null;
+            Func.U<android.support.v4.app.FragmentStatePagerAdapter, Func.U<Integer, Func.U<RealWorld, android.support.v4.app.Fragment>>>
+                gi = (Func.U<android.support.v4.app.FragmentStatePagerAdapter, Func.U<Integer, Func.U<RealWorld, android.support.v4.app.Fragment>>>) 
+                    justDelegator.mem1.call();
+            Func.U<Integer, Func.U<Object, android.support.v4.app.Fragment>>
+                appliedFspa = RunTM.<Func.U<Integer, Func.U<Object, android.support.v4.app.Fragment>>>
+                    cast(gi.apply(Thunk.lazy((android.support.v4.app.FragmentStatePagerAdapter) this)).call()).call();
+            Func.U<Object, android.support.v4.app.Fragment> res = RunTM.<Func.U<Object, android.support.v4.app.Fragment>>cast(appliedFspa.apply(Thunk.<Integer>lazy(position)).call()).call();
+            return (android.support.v4.app.Fragment) PreludeBase.TST.run(res).call();
+        }
+
+        @Override
+        public int getCount() {
+            frege.prelude.PreludeBase.TMaybe<
+                Func.U<android.support.v4.app.FragmentStatePagerAdapter, Func.U<RealWorld, Integer>>
+            > getCountDelegator = TFspaDelegator.getCount(delegator);
+            PreludeBase.TMaybe.DJust<
+                Func.U<android.support.v4.app.FragmentStatePagerAdapter, Func.U<RealWorld, Integer>>
+            > justDelegator = getCountDelegator.asJust();
+            if (justDelegator == null) return 0;
+            Func.U<android.support.v4.app.FragmentStatePagerAdapter, Func.U<RealWorld, Integer>>
+                gc = (Func.U<android.support.v4.app.FragmentStatePagerAdapter, Func.U<RealWorld, Integer>>) 
+                    justDelegator.mem1.call();
+            Func.U<Object, Integer> res = RunTM.<Func.U<Object, Integer>>
+                    cast(gc.apply(Thunk.lazy((android.support.v4.app.FragmentStatePagerAdapter) this)).call()).call();
+            return ((Integer) PreludeBase.TST.run(res).call()).intValue();
+        }
+    }
+}

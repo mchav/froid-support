@@ -1,0 +1,10 @@
+module froid.support.design.widget.Snackbar where
+
+import froid.view.View
+
+data Snackbar = native android.support.design.widget.Snackbar where
+    native lengthLong "android.support.design.widget.Snackbar.LENGTH_LONG" :: Int
+    native lengthShort "android.support.design.widget.Snackbar.LENGTH_SHORT" :: Int
+    native make "android.support.design.widget.Snackbar.make" :: MutableIO View -> String -> Int -> IO (MutableIO Snackbar)
+    native setAction :: MutableIO Snackbar -> String -> MutableIO OnClickListener -> IO (MutableIO Snackbar)
+    native show :: MutableIO Snackbar -> IO ()

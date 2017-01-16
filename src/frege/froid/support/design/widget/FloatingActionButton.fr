@@ -1,0 +1,30 @@
+module froid.support.design.widget.FloatingActionButton where
+
+import froid.content.Context
+import froid.view.View
+import froid.Types
+
+data FloatingActionButton = native android.support.design.widget.FloatingActionButton where
+    native setOnClickListener :: MutableIO FloatingActionButton -> MutableIO OnClickListener -> IO ()
+    native setVisibility :: MutableIO FloatingActionButton -> Int -> IO ()
+    native getWidth :: MutableIO FloatingActionButton -> IO Int
+    native getHeight :: MutableIO FloatingActionButton -> IO Int
+
+instance ViewSub FloatingActionButton where
+    native fromView "(android.support.design.widget.FloatingActionButton)" :: MutableIO View -> IO (ClassCastException | MutableIO FloatingActionButton)
+
+instance IsView FloatingActionButton where
+    native toView "(android.view.View)" :: MutableIO FloatingActionButton -> IO (ClassCastException | MutableIO View)
+
+asFab :: (Int -> IO (MutableIO View)) -> Int -> IO (MutableIO FloatingActionButton)
+asFab find res = do
+    v <- find res
+    (fromView v >>= either (\cce -> error $ "Cast failed.") return) :: IO (MutableIO FloatingActionButton)
+
+asView :: MutableIO FloatingActionButton -> IO (MutableIO View)
+asView button = (toView button >>= either (\cce -> error $ "Cast failed.") return) :: IO (MutableIO View)
+
+setFabOnClick :: MutableIO FloatingActionButton -> (MutableIO View -> IO ()) -> IO ()
+setFabOnClick fab handler = do
+    v <- asView fab
+    setViewOnClick v handler

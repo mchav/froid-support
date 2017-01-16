@@ -1,0 +1,173 @@
+module froid.support.v4.app.Fragment where
+
+import froid.content.Context
+import froid.content.Intent
+import froid.content.res.Configuration
+import froid.os.Bundle
+import froid.view.ContextMenu
+import froid.view.LayoutInflater
+import froid.view.Menu
+import froid.view.MenuInflater
+import froid.view.MenuItem
+import froid.view.View
+import froid.view.ViewGroup
+import froid.view.animation.Animation
+
+import frege.prelude.PreludeBase
+
+import froid.Types
+
+data NativeFragmentActivity = native android.support.v4.app.FragmentActivity where
+    native startActivity :: MutableIO NativeFragmentActivity -> MutableIO Intent -> IO ()
+    native getIntent :: MutableIO NativeFragmentActivity -> IOMutable Intent
+
+data Fragment = native android.support.v4.app.Fragment where
+    native getContext :: MutableIO Fragment -> IOMutable Context
+    native getActivity :: MutableIO Fragment -> IOMutable NativeFragmentActivity
+    native onResume :: MutableIO Fragment -> IO ()
+    native setArguments :: MutableIO Fragment -> MutableIO Bundle -> IO ()
+    native getArguments :: MutableIO Fragment -> IO (Maybe (MutableIO Bundle))
+
+data FragmentDelegator = FragmentDelegator { onActivityCreated      :: Maybe (MutableIO Fragment -> Maybe (MutableIO Bundle) -> IO ())
+                                           , onActivityResult       :: Maybe (MutableIO Fragment -> Int -> Int -> Maybe (MutableIO Intent) -> IO ())
+                                           , onAttach               :: Maybe (MutableIO Fragment -> MutableIO Context -> IO ())
+                                           , onAttachFragment       :: Maybe (MutableIO Fragment -> MutableIO Fragment -> IO ())
+                                           , onConfigurationChanged :: Maybe (MutableIO Fragment -> MutableIO Configuration -> IO ())
+                                           , onContextItemSelected  :: Maybe (MutableIO Fragment -> MutableIO MenuItem -> IO Bool)
+                                           , onCreate               :: Maybe (MutableIO Fragment -> Maybe (MutableIO Bundle) -> IO ())
+                                           , onCreateAnimation      :: Maybe (MutableIO Fragment -> Int -> Bool -> Int -> IO (MutableIO Animation))
+                                           , onCreateContextMenu    :: Maybe (MutableIO Fragment -> MutableIO ContextMenu -> MutableIO View -> MutableIO ContextMenuInfo -> IO ()) --overload
+                                           , onCreateOptionsMenu    :: Maybe (MutableIO Fragment -> MutableIO Menu -> MutableIO MenuInflater -> IO ())
+                                           , onCreateView           :: Maybe (MutableIO Fragment -> MutableIO LayoutInflater -> MutableIO ViewGroup -> Maybe (MutableIO Bundle) -> IO (MutableIO View))
+                                           , onResume               :: Maybe (MutableIO Fragment -> IO ())
+                                           , onDestroy              :: Maybe (MutableIO Fragment -> IO ())
+                                           , onDetach               :: Maybe (MutableIO Fragment -> IO ())
+                                       }
+
+
+defaultFragmentDelegator :: FragmentDelegator
+defaultFragmentDelegator = FragmentDelegator { onActivityCreated        = Nothing
+                                               , onActivityResult       = Nothing
+                                               , onAttach               = Nothing
+                                               , onAttachFragment       = Nothing
+                                               , onConfigurationChanged = Nothing
+                                               , onContextItemSelected  = Nothing
+                                               , onCreate               = Nothing
+                                               , onCreateAnimation      = Nothing
+                                               , onCreateContextMenu    = Nothing
+                                               , onCreateOptionsMenu    = Nothing
+                                               , onCreateView           = Nothing
+                                               , onResume               = Nothing
+                                               , onDestroy              = Nothing
+                                               , onDetach               = Nothing
+                                           }
+
+native delegateFragment "froid.support.v4.app.Fragment.delegate" :: FragmentDelegator -> STMutable RealWorld Fragment
+
+native redelegateFragment "froid.support.v4.app.Fragment.redelegate" :: MutableIO Fragment -> FragmentDelegator -> IOMutable Fragment
+
+native module where {
+    public static android.support.v4.app.Fragment delegate(TFragmentDelegator delegator) {
+        FregeFragment frag = new FregeFragment();
+        frag.delegator = delegator;
+        return (android.support.v4.app.Fragment) frag;
+    }
+
+    public static android.support.v4.app.Fragment redelegate(android.support.v4.app.Fragment frag, TFragmentDelegator delegator) {
+        FregeFragment fragment = (FregeFragment) frag;
+        fragment.delegator = delegator;
+        return (android.support.v4.app.Fragment) fragment;
+    }
+
+    public static class FregeFragment extends android.support.v4.app.Fragment {
+
+        TFragmentDelegator delegator = null;
+
+        private Object run(Object invokedMethod) {
+            if (invokedMethod == null) return null;
+            
+            final frege.run7.Func.U<Object,Short> res = frege.run.RunTM.<frege.run7.Func.U<Object,Short>>cast(
+                    invokedMethod).call();
+            return frege.prelude.PreludeBase.TST.run(res).call();
+        }
+
+        @Override
+        public void onCreate(android.os.Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            return;
+        }
+
+        @Override
+        public android.view.View onCreateView(android.view.LayoutInflater inflater, android.view.ViewGroup container, android.os.Bundle savedInstanceState) {
+            frege.prelude.PreludeBase.TMaybe<
+                frege.run7.Func.U<android.support.v4.app.Fragment, frege.run7.Func.U<android.view.LayoutInflater, frege.run7.Func.U<android.view.ViewGroup, frege.run7.Func.U<PreludeBase.TMaybe<android.os.Bundle>, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, android.view.View>>>>>
+            > onCreateViewDelegator = TFragmentDelegator.onCreateView(delegator);
+            PreludeBase.TMaybe.DJust<
+                frege.run7.Func.U<android.support.v4.app.Fragment, frege.run7.Func.U<android.view.LayoutInflater, frege.run7.Func.U<android.view.ViewGroup, frege.run7.Func.U<PreludeBase.TMaybe<android.os.Bundle>, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, android.view.View>>>>>
+            > justDelegator = onCreateViewDelegator.asJust();
+            if (justDelegator == null) return null;
+            Func.U<android.support.v4.app.Fragment, frege.run7.Func.U<android.view.LayoutInflater, frege.run7.Func.U<android.view.ViewGroup, frege.run7.Func.U<PreludeBase.TMaybe<android.os.Bundle>, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, android.view.View>>>>> 
+                ocv = 
+                    (Func.U<android.support.v4.app.Fragment, frege.run7.Func.U<android.view.LayoutInflater, frege.run7.Func.U<android.view.ViewGroup, frege.run7.Func.U<PreludeBase.TMaybe<android.os.Bundle>, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, android.view.View>>>>>) 
+                        justDelegator.mem1.call();
+            Func.U<android.view.LayoutInflater, Func.U<android.view.ViewGroup, Func.U<PreludeBase.TMaybe<android.os.Bundle>, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, android.view.View>>>>
+                appliedFrag = RunTM.<frege.run7.Func.U<android.view.LayoutInflater, frege.run7.Func.U<android.view.ViewGroup, frege.run7.Func.U<PreludeBase.TMaybe<android.os.Bundle>, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, android.view.View>>>>>
+                    cast(ocv.apply(Thunk.lazy((android.support.v4.app.Fragment) this)).call()).call();
+            Func.U<android.view.ViewGroup, frege.run7.Func.U<PreludeBase.TMaybe<android.os.Bundle>, frege.run7.Func.U<Object, android.view.View>>> appliedInflater = RunTM.<frege.run7.Func.U<android.view.ViewGroup, frege.run7.Func.U<PreludeBase.TMaybe<android.os.Bundle>, frege.run7.Func.U<Object, android.view.View>>>>cast(appliedFrag.apply(Thunk.lazy(inflater)).call()).call();
+            Func.U<PreludeBase.TMaybe<android.os.Bundle>, frege.run7.Func.U<Object, android.view.View>> appliedGroup = RunTM.<frege.run7.Func.U<PreludeBase.TMaybe<android.os.Bundle>, frege.run7.Func.U<Object, android.view.View>>>cast(appliedInflater.apply(Thunk.<android.view.ViewGroup>lazy(container)).call()).call();
+            PreludeBase.TMaybe<android.os.Bundle> sis = savedInstanceState == null ?
+                PreludeBase.TMaybe.DNothing.<android.os.Bundle>mk(): 
+                PreludeBase.TMaybe.DJust.<android.os.Bundle>mk(Thunk.<android.os.Bundle>lazy(savedInstanceState));
+            final Func.U<Object, android.view.View> res = RunTM.<Func.U<Object, android.view.View>>cast(appliedGroup.apply(Thunk.lazy(sis)).call()).call();
+            return (android.view.View) PreludeBase.TST.run(res).call();
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            frege.prelude.PreludeBase.TMaybe<
+                Func.U<android.support.v4.app.Fragment, Func.U<RealWorld, Short>>
+            > onResumeDelegator = TFragmentDelegator.onResume(delegator);
+            PreludeBase.TMaybe.DJust<
+                Func.U<android.support.v4.app.Fragment, Func.U<RealWorld, Short>>
+            > justDelegator = onResumeDelegator.asJust();
+            if (justDelegator == null) return;
+            Func.U<android.support.v4.app.Fragment, Func.U<RealWorld, Short>>
+                or = (Func.U<android.support.v4.app.Fragment, Func.U<RealWorld, Short>>) justDelegator.mem1.call();
+            Func.U<Object, Short> res = RunTM.<Func.U<Object, Short>>cast(or.apply(Thunk.lazy((android.support.v4.app.Fragment) this)).call()).call();
+            PreludeBase.TST.run(res).call();
+        }
+
+        @Override
+        public void onDestroy() {
+            super.onDestroy();
+            frege.prelude.PreludeBase.TMaybe<
+                Func.U<android.support.v4.app.Fragment, Func.U<RealWorld, Short>>
+            > onDestroyDelegator = TFragmentDelegator.onDestroy(delegator);
+            PreludeBase.TMaybe.DJust<
+                Func.U<android.support.v4.app.Fragment, Func.U<RealWorld, Short>>
+            > justDelegator = onDestroyDelegator.asJust();
+            if (justDelegator == null) return;
+            Func.U<android.support.v4.app.Fragment, Func.U<RealWorld, Short>>
+                od = (Func.U<android.support.v4.app.Fragment, Func.U<RealWorld, Short>>) justDelegator.mem1.call();
+            Func.U<Object, Short> res = RunTM.<Func.U<Object, Short>>cast(od.apply(Thunk.lazy((android.support.v4.app.Fragment) this)).call()).call();
+            PreludeBase.TST.run(res).call();
+        }
+
+        @Override
+        public void onDetach() {
+            super.onDetach();
+            frege.prelude.PreludeBase.TMaybe<
+                Func.U<android.support.v4.app.Fragment, Func.U<RealWorld, Short>>
+            > onDetachDelegator = TFragmentDelegator.onDetach(delegator);
+            PreludeBase.TMaybe.DJust<
+                Func.U<android.support.v4.app.Fragment, Func.U<RealWorld, Short>>
+            > justDelegator = onDetachDelegator.asJust();
+            if (justDelegator == null) return;
+            Func.U<android.support.v4.app.Fragment, Func.U<RealWorld, Short>>
+                od = (Func.U<android.support.v4.app.Fragment, Func.U<RealWorld, Short>>) justDelegator.mem1.call();
+            Func.U<Object, Short> res = RunTM.<Func.U<Object, Short>>cast(od.apply(Thunk.lazy((android.support.v4.app.Fragment) this)).call()).call();
+            PreludeBase.TST.run(res).call();
+        }
+    }
+}

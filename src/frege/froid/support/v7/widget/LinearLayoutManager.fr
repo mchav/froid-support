@@ -1,0 +1,6 @@
+module froid.support.v7.widget.LinearLayoutManager where
+
+import froid.content.Context
+
+data LinearLayoutManager = native android.support.v7.widget.LinearLayoutManager where
+    native new :: MutableIO Context -> STMutable RealWorld LinearLayoutManager

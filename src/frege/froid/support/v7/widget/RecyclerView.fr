@@ -1,0 +1,21 @@
+module froid.support.v7.widget.RecyclerView where
+
+import froid.support.v7.widget.LinearLayoutManager
+import froid.support.v7.widget.recyclerView.Adapter
+
+import froid.view.View
+
+import froid.Types
+
+data RecyclerView = native android.support.v7.widget.RecyclerView where
+    native getAdapter :: MutableIO RecyclerView -> IO (Maybe (MutableIO RecyclerViewAdapter))
+    native setLayoutManager :: MutableIO RecyclerView -> MutableIO LinearLayoutManager -> IO ()
+    native setAdapter :: MutableIO RecyclerView -> MutableIO RecyclerViewAdapter -> IO ()
+
+asRecyclerView :: (Int -> IO (MutableIO View)) -> Int -> IO (MutableIO RecyclerView)
+asRecyclerView find res = do
+    v <- find res
+    (fromView v >>= either (\cce -> error $ "Cast failed.") return) :: IO (MutableIO RecyclerView)
+
+instance ViewSub RecyclerView where
+    native fromView "(android.support.v7.widget.RecyclerView)" :: MutableIO View -> IO (ClassCastException | MutableIO RecyclerView)

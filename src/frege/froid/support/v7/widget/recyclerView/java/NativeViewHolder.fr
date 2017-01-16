@@ -1,0 +1,16 @@
+module froid.support.v7.widget.recyclerView.java.NativeViewHolder where
+
+data NativeViewHolder = native android.support.v7.widget.RecyclerView.ViewHolder
+
+native module type NativeViewHolder where {
+    android.view.View nativeItemView;
+
+    public NativeViewHolder(android.view.View itemView) {
+        super(itemView);
+        nativeItemView = itemView;
+    }
+
+    public android.view.View itemView() {
+        return this.nativeItemView;
+    }
+}

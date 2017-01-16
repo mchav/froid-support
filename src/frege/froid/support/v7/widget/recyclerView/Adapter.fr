@@ -1,0 +1,98 @@
+module froid.support.v7.widget.recyclerView.Adapter where
+
+import froid.view.ViewGroup
+import froid.support.v7.widget.recyclerView.java.NativeViewHolder
+import froid.support.v7.widget.recyclerView.ViewHolder
+
+data RecyclerViewAdapter = native android.support.v7.widget.RecyclerView.Adapter where
+    native notifyDataSetChanged :: MutableIO RecyclerViewAdapter -> IO ()
+
+-- pass a reference to the object in case there is a need to notify data sets etc
+data RVAdapterDelegator = RVAdapterDelegator { onCreateViewHolder :: Maybe (MutableIO RecyclerViewAdapter -> MutableIO ViewGroup -> Int -> IOMutable RecyclerViewHolder)
+                                             , onBindViewHolder   :: Maybe (MutableIO RecyclerViewAdapter -> MutableIO RecyclerViewHolder -> Int -> IO ())
+                                             , getItemCount       :: Maybe (MutableIO RecyclerViewAdapter -> IO Int)
+                                             }
+
+defaultRVAdapterDelegator = RVAdapterDelegator { onCreateViewHolder = Nothing, onBindViewHolder = Nothing, getItemCount = Nothing }
+
+native delegateAdapter "froid.support.v7.widget.recyclerView.Adapter.delegate" :: RVAdapterDelegator -> STMutable RealWorld RecyclerViewAdapter
+
+native module where {
+    public static android.support.v7.widget.RecyclerView.Adapter delegate(TRVAdapterDelegator delegator) {
+        NativeAdapter adapter = new NativeAdapter();
+        adapter.delegator = delegator;
+        return (android.support.v7.widget.RecyclerView.Adapter) adapter;
+    }
+    public static class NativeAdapter extends android.support.v7.widget.RecyclerView.Adapter<froid.support.v7.widget.recyclerView.java.NativeViewHolder> {
+        TRVAdapterDelegator delegator = null;
+
+        @Override
+        public froid.support.v7.widget.recyclerView.java.NativeViewHolder onCreateViewHolder(android.view.ViewGroup parent, int viewType) {
+            frege.prelude.PreludeBase.TMaybe<
+                frege.run7.Func.U<android.support.v7.widget.RecyclerView.Adapter, frege.run7.Func.U<android.view.ViewGroup, frege.run7.Func.U<Integer, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, froid.support.v7.widget.recyclerView.java.NativeViewHolder>>>>
+            > onCreateViewHolderDelegator = TRVAdapterDelegator.onCreateViewHolder(delegator);
+            PreludeBase.TMaybe.DJust<
+                frege.run7.Func.U<android.support.v7.widget.RecyclerView.Adapter, frege.run7.Func.U<android.view.ViewGroup, frege.run7.Func.U<Integer, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, froid.support.v7.widget.recyclerView.java.NativeViewHolder>>>>
+            > justDelegator = onCreateViewHolderDelegator.asJust();
+            if (justDelegator == null) return null;
+            frege.run7.Func.U<android.support.v7.widget.RecyclerView.Adapter, frege.run7.Func.U<android.view.ViewGroup, frege.run7.Func.U<Integer, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, froid.support.v7.widget.recyclerView.java.NativeViewHolder>>>>
+                ocvh = 
+                    (frege.run7.Func.U<android.support.v7.widget.RecyclerView.Adapter, frege.run7.Func.U<android.view.ViewGroup, frege.run7.Func.U<Integer, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, froid.support.v7.widget.recyclerView.java.NativeViewHolder>>>>) 
+                        justDelegator.mem1.call();
+            frege.run7.Func.U<android.view.ViewGroup, frege.run7.Func.U<Integer, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, froid.support.v7.widget.recyclerView.java.NativeViewHolder>>>
+                appliedRVA = RunTM.<frege.run7.Func.U<android.view.ViewGroup, frege.run7.Func.U<Integer, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, froid.support.v7.widget.recyclerView.java.NativeViewHolder>>>>
+                    cast(ocvh.apply(Thunk.lazy((android.support.v7.widget.RecyclerView.Adapter) this))).call();
+            frege.run7.Func.U<Integer, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, froid.support.v7.widget.recyclerView.java.NativeViewHolder>>
+                appliedViewGroup = RunTM.<frege.run7.Func.U<Integer, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, froid.support.v7.widget.recyclerView.java.NativeViewHolder>>>
+                    cast(appliedRVA.apply(Thunk.lazy(parent)).call()).call();
+            frege.run7.Func.U<Object, froid.support.v7.widget.recyclerView.java.NativeViewHolder>
+                res = RunTM.<frege.run7.Func.U<Object, froid.support.v7.widget.recyclerView.java.NativeViewHolder>>
+                    cast(appliedViewGroup.apply(Thunk.<Integer>lazy(viewType)).call()).call();
+
+            return (froid.support.v7.widget.recyclerView.java.NativeViewHolder) frege.prelude.PreludeBase.TST.run(res).call();
+        }
+        @Override
+        public void onBindViewHolder(froid.support.v7.widget.recyclerView.java.NativeViewHolder holder, int position) {
+            frege.prelude.PreludeBase.TMaybe<
+                frege.run7.Func.U<android.support.v7.widget.RecyclerView.Adapter, frege.run7.Func.U<froid.support.v7.widget.recyclerView.java.NativeViewHolder, frege.run7.Func.U<Integer, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, Short>>>>
+            > onBindViewHolderDelegator = TRVAdapterDelegator.onBindViewHolder(delegator);
+            PreludeBase.TMaybe.DJust<
+                frege.run7.Func.U<android.support.v7.widget.RecyclerView.Adapter, frege.run7.Func.U<froid.support.v7.widget.recyclerView.java.NativeViewHolder, frege.run7.Func.U<Integer, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, Short>>>>
+            > justDelegator = onBindViewHolderDelegator.asJust();
+            if (justDelegator == null) return;
+            frege.run7.Func.U<android.support.v7.widget.RecyclerView.Adapter, frege.run7.Func.U<froid.support.v7.widget.recyclerView.java.NativeViewHolder, frege.run7.Func.U<Integer, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, Short>>>>
+                obvh =
+                    (frege.run7.Func.U<android.support.v7.widget.RecyclerView.Adapter, frege.run7.Func.U<froid.support.v7.widget.recyclerView.java.NativeViewHolder, frege.run7.Func.U<Integer, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, Short>>>>)
+                        justDelegator.mem1.call();
+            frege.run7.Func.U<froid.support.v7.widget.recyclerView.java.NativeViewHolder, frege.run7.Func.U<Integer, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, Short>>>
+                appliedRVA = RunTM.<frege.run7.Func.U<froid.support.v7.widget.recyclerView.java.NativeViewHolder, frege.run7.Func.U<Integer, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, Short>>>>
+                    cast(obvh.apply(Thunk.lazy((android.support.v7.widget.RecyclerView.Adapter) this))).call();
+            frege.run7.Func.U<Integer, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, Short>>
+                appliedRVH = RunTM.<frege.run7.Func.U<Integer, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, Short>>>
+                    cast(appliedRVA.apply(Thunk.lazy(holder)).call()).call();
+            frege.run7.Func.U<Object, Short>
+                res = RunTM.<frege.run7.Func.U<Object, Short>>
+                    cast(appliedRVH.apply(Thunk.<Integer>lazy(position)).call()).call();
+            frege.prelude.PreludeBase.TST.run(res).call();
+        }
+
+        @Override
+        public int getItemCount() {
+            frege.prelude.PreludeBase.TMaybe<
+                frege.run7.Func.U<android.support.v7.widget.RecyclerView.Adapter, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, Integer>>
+            > getItemCountDelegator = TRVAdapterDelegator.getItemCount(delegator);
+            PreludeBase.TMaybe.DJust<
+                frege.run7.Func.U<android.support.v7.widget.RecyclerView.Adapter, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, Integer>>
+            > justDelegator = getItemCountDelegator.asJust();
+            if (justDelegator == null) return 0;
+            frege.run7.Func.U<android.support.v7.widget.RecyclerView.Adapter, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, Integer>>
+                gic =
+                    (frege.run7.Func.U<android.support.v7.widget.RecyclerView.Adapter, frege.run7.Func.U<frege.runtime.Phantom.RealWorld, Integer>>)
+                        justDelegator.mem1.call();
+            frege.run7.Func.U<Object, Integer>
+                res =  RunTM.<frege.run7.Func.U<Object, Integer>>
+                    cast(gic.apply(Thunk.lazy((android.support.v7.widget.RecyclerView.Adapter) this)).call()).call(); 
+            return ((Integer) frege.prelude.PreludeBase.TST.run(res).call()).intValue();
+        }
+    }
+}

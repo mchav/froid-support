@@ -1,0 +1,21 @@
+module froid.support.v4.view.ViewPager where
+
+import froid.support.v4.app.FragmentStatePagerAdapter
+import froid.view.View
+
+import froid.Types
+
+data ViewPager = native android.support.v4.view.ViewPager where
+    native setAdapter :: MutableIO ViewPager -> MutableIO FragmentStatePagerAdapter -> IO ()
+    native setCurrentItem :: MutableIO ViewPager -> Int -> IO ()
+
+asViewPager :: (Int -> IO (MutableIO View)) -> Int -> IOMutable ViewPager
+asViewPager find res = do
+    v <- find res
+    (fromView v >>= either (\cce -> error $ "Cast failed.") return) :: IO (MutableIO ViewPager)
+
+instance ViewSub ViewPager where
+    native fromView "(android.support.v4.view.ViewPager)" :: MutableIO View -> IO (ClassCastException | MutableIO ViewPager)
+
+instance IsView ViewPager where
+    native toView "(android.view.View)" :: MutableIO ViewPager -> IO (ClassCastException | MutableIO View)

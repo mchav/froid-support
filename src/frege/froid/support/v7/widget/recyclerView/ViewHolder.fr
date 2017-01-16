@@ -1,0 +1,15 @@
+module froid.support.v7.widget.recyclerView.ViewHolder where
+
+import froid.support.v7.widget.recyclerView.java.NativeViewHolder
+import froid.view.View
+
+import froid.Types
+
+data RecyclerViewHolder = native froid.support.v7.widget.recyclerView.java.NativeViewHolder where
+    native new :: MutableIO View -> STMutable RealWorld RecyclerViewHolder
+    native itemView :: MutableIO RecyclerViewHolder -> IOMutable View
+
+{-
+instance IsViewHolder RecyclerViewHolder where
+    native itemView :: MutableIO RecyclerViewHolder -> IOMutable View
+-}
