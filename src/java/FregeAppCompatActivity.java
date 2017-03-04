@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 public class FregeAppCompatActivity extends AppCompatActivity {
     
     Func.U<RealWorld, Short> onPauseLambda = null;
+    Func.U<RealWorld, Short> onResumeLambda = null;
     Func.U<Bundle, Func.U<RealWorld, Short>> onSavedInstanceStateLambda = null;
     Func.U<Integer, Func.U<Integer, Func.U<PreludeBase.TMaybe<Intent>, Func.U<RealWorld, Short>>>> onActivityResultLambda = null;
     Func.U<MenuItem, Func.U<RealWorld, Boolean>> onOptionsItemSelectedLambda = null;
@@ -28,6 +29,10 @@ public class FregeAppCompatActivity extends AppCompatActivity {
     // executes io action given as parameter
     public void setOnPause(Func.U<RealWorld, Short> lambda) {
         this.onPauseLambda = lambda;
+    }
+
+    public void setOnResume(Func.U<RealWorld, Short> lambda) {
+        this.onResumeLambda = lambda;
     }
 
     public void setOnSavedInstanceState(Func.U<Bundle, Func.U<RealWorld, Short>> lambda) {
@@ -89,6 +94,12 @@ public class FregeAppCompatActivity extends AppCompatActivity {
     public void onPause() {
         super.onPause();
         run(onPauseLambda);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        run(onResumeLambda);
     }
 
     @Override

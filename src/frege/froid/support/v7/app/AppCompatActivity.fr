@@ -4,6 +4,8 @@ import froid.app.Activity
 import froid.content.Context
 import froid.content.Intent
 import froid.os.Bundle
+import froid.support.v4.app.FragmentManager
+import froid.support.v7.app.ActionBar
 import froid.view.Menu
 import froid.view.MenuInflater
 import froid.view.MenuItem
@@ -16,11 +18,17 @@ data AppCompatActivity = native froid.support.v7.app.FregeAppCompatActivity wher
     native getIntent :: MutableIO AppCompatActivity -> IO (MutableIO Intent) -- very few cases when this is null http://stackoverflow.com/questions/37856407/can-activity-getintent-ever-return-null
     native getMenuInflater :: MutableIO AppCompatActivity -> IO (MutableIO MenuInflater)
     native findViewById :: MutableIO AppCompatActivity -> Int -> IO (MutableIO View)
+    native getSupportActionBar :: MutableIO AppCompatActivity -> IOMutable ActionBar
     native setContentView :: MutableIO AppCompatActivity -> Int -> IO ()
     native setSupportActionBar :: MutableIO AppCompatActivity -> MutableIO Toolbar -> IO ()
     native setResult :: MutableIO AppCompatActivity -> Int -> MutableIO Intent -> IO ()
     native startActivityForResult :: MutableIO AppCompatActivity -> MutableIO Intent -> Int -> IO ()
+    native startActivity :: MutableIO AppCompatActivity -> MutableIO Intent -> IO ()
+    native requestWindowFeature :: MutableIO AppCompatActivity -> Int -> IO Bool
+    native getSupportFragmentManager :: MutableIO AppCompatActivity -> IOMutable FragmentManager
+    native runOnUiThread :: MutableIO AppCompatActivity -> MutableIO Runnable -> IO ()
     -- new methods
+    native setOnResume :: MutableIO AppCompatActivity -> IO () -> IO ()
     native setOnPause :: MutableIO AppCompatActivity -> IO () -> IO ()
     native setOnSavedInstanceState :: MutableIO AppCompatActivity -> (MutableIO Bundle -> IO ()) -> IO ()
     native setOnActivityResult :: MutableIO AppCompatActivity -> (Int -> Int -> Maybe(MutableIO Intent) -> IO ()) -> IO ()

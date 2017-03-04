@@ -3,7 +3,10 @@ module froid.support.v4.app.FragmentManager where
 import froid.support.v4.app.Fragment
 import froid.support.v4.app.FragmentTransaction
 
+import Java.Util
+
 data FragmentManager = native android.support.v4.app.FragmentManager where
     native findFragmentById :: MutableIO FragmentManager -> Int -> IO (Maybe (MutableIO Fragment))
     native beginTransaction :: MutableIO FragmentManager -> IO (MutableIO FragmentTransaction)
     native popBackStack :: MutableIO FragmentManager -> IO ()
+    native getFragments :: MutableIO FragmentManager -> IO (Maybe (MutableIO (List (MutableIO Fragment))))

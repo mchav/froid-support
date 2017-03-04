@@ -2,8 +2,10 @@ module froid.support.v4.app.FragmentActivity where
 
 import froid.content.Context
 import froid.content.Intent
+import froid.content.res.AssetManager
 import froid.os.Bundle
 import froid.support.v4.app.FragmentManager
+import froid.app.ActionBar
 import froid.view.View
 import froid.widget.Toolbar
 
@@ -11,6 +13,7 @@ data FragmentActivity = native froid.support.v4.app.FregeFragmentActivity where
     native getApplicationContext :: MutableIO FragmentActivity -> IO (MutableIO Context)
     native resultOk "android.app.Activity.RESULT_OK" :: Int
     native getIntent :: MutableIO FragmentActivity -> IO (MutableIO Intent) -- very few cases when this is null http://stackoverflow.com/questions/37856407/can-activity-getintent-ever-return-null
+    native getActionBar :: MutableIO FragmentActivity -> IOMutable ActionBar
     native findViewById :: MutableIO FragmentActivity -> Int -> IO (MutableIO View)
     native setContentView :: MutableIO FragmentActivity -> Int -> IO ()
     native setActionBar :: MutableIO FragmentActivity -> MutableIO Toolbar -> IO ()

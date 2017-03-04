@@ -5,4 +5,6 @@ import froid.support.v4.app.Fragment
 data FragmentTransaction = native android.support.v4.app.FragmentTransaction where
     native add :: MutableIO FragmentTransaction -> Int -> MutableIO Fragment -> String -> IO (MutableIO FragmentTransaction)
     native replace :: MutableIO FragmentTransaction -> Int -> MutableIO Fragment -> String -> IO (MutableIO FragmentTransaction)
+    native remove :: MutableIO FragmentTransaction -> MutableIO Fragment -> IO (MutableIO FragmentTransaction)
     native commit :: MutableIO FragmentTransaction -> IO Int
+    native commitNow :: MutableIO FragmentTransaction -> IO ()

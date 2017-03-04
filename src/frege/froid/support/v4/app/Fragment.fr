@@ -18,12 +18,13 @@ import frege.prelude.PreludeBase
 import froid.Types
 
 data NativeFragmentActivity = native android.support.v4.app.FragmentActivity where
+    native runOnUiThread :: MutableIO NativeFragmentActivity -> MutableIO Runnable -> IO ()
     native startActivity :: MutableIO NativeFragmentActivity -> MutableIO Intent -> IO ()
-    native getIntent :: MutableIO NativeFragmentActivity -> IOMutable Intent
 
 data Fragment = native android.support.v4.app.Fragment where
-    native getContext :: MutableIO Fragment -> IOMutable Context
     native getActivity :: MutableIO Fragment -> IOMutable NativeFragmentActivity
+    native getContext :: MutableIO Fragment -> IOMutable Context
+    native getTag :: MutableIO Fragment -> IO String
     native onResume :: MutableIO Fragment -> IO ()
     native setArguments :: MutableIO Fragment -> MutableIO Bundle -> IO ()
     native getArguments :: MutableIO Fragment -> IO (Maybe (MutableIO Bundle))
@@ -46,7 +47,7 @@ data FragmentDelegator = FragmentDelegator { onActivityCreated      :: Maybe (Mu
 
 
 defaultFragmentDelegator :: FragmentDelegator
-defaultFragmentDelegator = FragmentDelegator { onActivityCreated        = Nothing
+defaultFragmentDelegator = FragmentDelegator {   onActivityCreated      = Nothing
                                                , onActivityResult       = Nothing
                                                , onAttach               = Nothing
                                                , onAttachFragment       = Nothing
@@ -62,33 +63,36 @@ defaultFragmentDelegator = FragmentDelegator { onActivityCreated        = Nothin
                                                , onDetach               = Nothing
                                            }
 
-native delegateFragment "froid.support.v4.app.Fragment.delegate" :: FragmentDelegator -> STMutable RealWorld Fragment
+native mkFragment "froid.support.v4.app.Fragment.delegate" :: FragmentDelegator -> STMutable RealWorld Fragment
 
 native redelegateFragment "froid.support.v4.app.Fragment.redelegate" :: MutableIO Fragment -> FragmentDelegator -> IOMutable Fragment
 
 native module where {
     public static android.support.v4.app.Fragment delegate(TFragmentDelegator delegator) {
         FregeFragment frag = new FregeFragment();
-        frag.delegator = delegator;
+        frag.setDelegator(delegator);
         return (android.support.v4.app.Fragment) frag;
     }
 
     public static android.support.v4.app.Fragment redelegate(android.support.v4.app.Fragment frag, TFragmentDelegator delegator) {
         FregeFragment fragment = (FregeFragment) frag;
-        fragment.delegator = delegator;
+        fragment.setDelegator(delegator);
         return (android.support.v4.app.Fragment) fragment;
     }
 
     public static class FregeFragment extends android.support.v4.app.Fragment {
 
+        private static java.util.HashMap<Integer, TFragmentDelegator> delegatorMap = new java.util.HashMap<>();
         TFragmentDelegator delegator = null;
 
-        private Object run(Object invokedMethod) {
-            if (invokedMethod == null) return null;
-            
-            final frege.run7.Func.U<Object,Short> res = frege.run.RunTM.<frege.run7.Func.U<Object,Short>>cast(
-                    invokedMethod).call();
-            return frege.prelude.PreludeBase.TST.run(res).call();
+        public FregeFragment() {
+            super();
+            if (delegator == null) delegator = delegatorMap.get(this.getId());
+        }
+
+        public void setDelegator(TFragmentDelegator del) {
+            this.delegator = del;
+            delegatorMap.put(this.getId(), del);
         }
 
         @Override
@@ -141,6 +145,7 @@ native module where {
         @Override
         public void onDestroy() {
             super.onDestroy();
+            if (delegator == null) return;
             frege.prelude.PreludeBase.TMaybe<
                 Func.U<android.support.v4.app.Fragment, Func.U<RealWorld, Short>>
             > onDestroyDelegator = TFragmentDelegator.onDestroy(delegator);
@@ -157,6 +162,7 @@ native module where {
         @Override
         public void onDetach() {
             super.onDetach();
+            if (delegator == null) return;
             frege.prelude.PreludeBase.TMaybe<
                 Func.U<android.support.v4.app.Fragment, Func.U<RealWorld, Short>>
             > onDetachDelegator = TFragmentDelegator.onDetach(delegator);
