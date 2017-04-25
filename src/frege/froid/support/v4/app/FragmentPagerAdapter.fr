@@ -1,0 +1,66 @@
+{-
+    Copyright 2016-2017 Michael Chavinda
+    This file is part of froid.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+-}
+
+module froid.support.v4.app.FragmentPagerAdapter where
+
+import froid.support.v4.app.Fragment hiding (Delegator)
+import froid.support.v4.app.FragmentManager
+
+data FragmentPagerAdapter = mutable native android.support.v4.app.FragmentPagerAdapter where
+    defaultDelegator = FragmentPagerAdapter.Delegator { getItem = Nothing, getCount = Nothing, getPageTitle = Nothing }
+    native mk "froid.support.v4.app.FragmentPagerAdapter.delegate" :: FragmentPagerAdapter.Delegator -> FragmentManager -> IO FragmentPagerAdapter
+
+data Delegator = Delegator { getItem  :: Maybe (MutableIO FragmentPagerAdapter -> Int -> IOMutable Fragment)
+                           , getCount :: Maybe (MutableIO FragmentPagerAdapter -> IO Int)
+                           , getPageTitle :: Maybe (MutableIO FragmentPagerAdapter -> Int -> IO CharSequence)
+                           }
+
+native module where {
+    public static android.support.v4.app.FragmentPagerAdapter delegate(TDelegator delegator, android.support.v4.app.FragmentManager fm) {
+        FregeFragmentPagerAdapter fpa = new FregeFragmentPagerAdapter(fm, delegator);
+        return (android.support.v4.app.FragmentPagerAdapter) fpa;
+    }
+
+    public static class FregeFragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
+
+        TDelegator delegator = null;
+        public FregeFragmentPagerAdapter(android.support.v4.app.FragmentManager fm, TDelegator delegator) {
+            super(fm);
+            this.delegator = delegator;
+        }
+
+        @Override
+        public android.support.v4.app.Fragment getItem(int position) {
+            if (TDelegator.getItem(delegator).asJust() != null)
+                return (android.support.v4.app.Fragment) PreludeBase.TST.performUnsafe(
+                    TDelegator.getItem(delegator).asJust().mem1.call()
+                    .apply(Thunk.lazy((android.support.v4.app.FragmentPagerAdapter) this)).call()
+                    .apply(Thunk.<Integer>lazy(position)).call()).call();
+            return null;
+        }
+
+        @Override
+        public int getCount() {
+            if (TDelegator.getCount(delegator).asJust() != null)
+                return (int) PreludeBase.TST.performUnsafe(
+                    TDelegator.getCount(delegator).asJust().mem1.call()
+                    .apply(Thunk.lazy((android.support.v4.app.FragmentPagerAdapter) this))
+                    .call()).call();
+            return 0;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            if (TDelegator.getPageTitle(delegator).asJust() != null)
+                return (CharSequence) PreludeBase.TST.performUnsafe(
+                    TDelegator.getPageTitle(delegator).asJust().mem1.call()
+                    .apply(Thunk.lazy((android.support.v4.app.FragmentPagerAdapter) this)).call()
+                    .apply(Thunk.<Integer>lazy(position)).call()).call();
+            return null;
+        }
+    }
+}

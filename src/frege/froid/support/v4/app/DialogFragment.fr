@@ -1,0 +1,51 @@
+{-
+    Copyright 2016-2017 Michael Chavinda
+    This file is part of froid.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+-}
+
+module froid.support.v4.app.DialogFragment where
+
+import froid.app.Dialog
+import froid.os.Bundle
+
+data DialogFragment = mutable native android.support.v4.app.DialogFragment where
+    native mk "froid.support.v4.app.DialogFragment.delegate" :: Delegator -> IO DialogFragment
+
+data Delegator = Delegator { onCreateDialog :: Maybe (DialogFragment -> Maybe Bundle -> IO Dialog) }
+
+native module where {
+    public static android.support.v4.app.DialogFragment delegate(TDelegator delegator) {
+        FregeDialogFragment frag = new FregeDialogFragment();
+        frag.setDelegator(delegator);
+        return (android.support.v4.app.DialogFragment) frag;
+    }
+
+    public static class FregeDialogFragment extends android.support.v4.app.DialogFragment {
+
+        TDelegator delegator = null;
+
+        public FregeDialogFragment() {
+            super();
+        }
+
+        public void setDelegator(TDelegator del) {
+            this.delegator = del;
+        }
+
+        @Override
+        public android.app.Dialog onCreateDialog(android.os.Bundle savedInstanceState) {
+            PreludeBase.TMaybe<android.os.Bundle> sis = savedInstanceState == null ?
+             PreludeBase.TMaybe.DNothing.<android.os.Bundle>mk(): 
+             PreludeBase.TMaybe.DJust.<android.os.Bundle>mk(Thunk.<android.os.Bundle>lazy(savedInstanceState));
+
+            if (TDelegator.onCreateDialog(delegator).asJust() != null)
+                return PreludeBase.TST.performUnsafe(
+                    TDelegator.onCreateDialog(delegator).asJust().mem1.call()
+                    .apply(Thunk.lazy((android.support.v4.app.DialogFragment) this)).call()
+                    .apply(Thunk.lazy(sis)).call()).call();
+            return null;
+        }
+    }
+}

@@ -1,10 +1,17 @@
+{-
+    Copyright 2016-2017 Michael Chavinda
+    This file is part of froid.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+-}
+
 module froid.support.v4.app.FragmentTransaction where
 
 import froid.support.v4.app.Fragment
 
-data FragmentTransaction = native android.support.v4.app.FragmentTransaction where
-    native add :: MutableIO FragmentTransaction -> Int -> MutableIO Fragment -> String -> IO (MutableIO FragmentTransaction)
-    native replace :: MutableIO FragmentTransaction -> Int -> MutableIO Fragment -> String -> IO (MutableIO FragmentTransaction)
-    native remove :: MutableIO FragmentTransaction -> MutableIO Fragment -> IO (MutableIO FragmentTransaction)
-    native commit :: MutableIO FragmentTransaction -> IO Int
-    native commitNow :: MutableIO FragmentTransaction -> IO ()
+data FragmentTransaction = mutable native android.support.v4.app.FragmentTransaction where
+    native add :: FragmentTransaction -> Int -> Fragment -> String -> IO FragmentTransaction
+    native replace :: FragmentTransaction -> Int -> Fragment -> String -> IO FragmentTransaction
+    native remove :: FragmentTransaction -> Fragment -> IO FragmentTransaction
+    native commit :: FragmentTransaction -> IO Int
+    native commitNow :: FragmentTransaction -> IO ()

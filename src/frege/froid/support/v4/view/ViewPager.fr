@@ -1,3 +1,10 @@
+{-
+    Copyright 2016-2017 Michael Chavinda
+    This file is part of froid.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+-}
+
 module froid.support.v4.view.ViewPager where
 
 import froid.support.v4.view.PagerAdapter
@@ -5,17 +12,16 @@ import froid.view.View
 
 import froid.Types
 
-data ViewPager = native android.support.v4.view.ViewPager where
-    native setAdapter :: MutableIO ViewPager -> MutableIO PagerAdapter -> IO ()
-    native setCurrentItem :: MutableIO ViewPager -> Int -> IO ()
-
-asViewPager :: (Int -> IO (MutableIO View)) -> Int -> IOMutable ViewPager
-asViewPager find res = do
-    v <- find res
-    (fromView v >>= either (\cce -> error $ "Cast failed.") return) :: IO (MutableIO ViewPager)
+data ViewPager = mutable native android.support.v4.view.ViewPager where
+    native setAdapter :: ViewPager -> PagerAdapter -> IO ()
+    native setCurrentItem :: ViewPager -> Int -> IO ()
+    fromView :: (Int -> IO (View)) -> Int -> IO ViewPager
+    fromView find res = do
+        v <- find res
+        (fromView' v >>= either (\cce -> error $ "Cast failed.") return) :: IO ViewPager
 
 instance ViewSub ViewPager where
-    native fromView "(android.support.v4.view.ViewPager)" :: MutableIO View -> IO (ClassCastException | MutableIO ViewPager)
+    native fromView' "(android.support.v4.view.ViewPager)" :: View -> IO (ClassCastException | ViewPager)
 
 instance IsView ViewPager where
-    native toView "(android.view.View)" :: MutableIO ViewPager -> IO (ClassCastException | MutableIO View)
+    native toView' "(android.view.View)" :: ViewPager -> IO (ClassCastException | View)

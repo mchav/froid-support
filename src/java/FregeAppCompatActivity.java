@@ -55,10 +55,15 @@ public class FregeAppCompatActivity extends AppCompatActivity {
     private Object invokeStaticActivityMethod(String methodName, Object[] args, String signature) {
         Method fregeMethod = null;
         try {
-            fregeMethod = this.getClass().getDeclaredMethod(methodName, FregeAppCompatActivity.class, Lazy.class);
+            fregeMethod = this.getClass().getDeclaredMethod(methodName,
+                FregeAppCompatActivity.class,
+                Lazy.class);
         } catch (NoSuchMethodException nsm) {
-            System.err.println("Method " + methodName + " is not defined. Make sure your onCreate function is defined as " + signature);
-            System.exit(-1);
+            android.util.Log.e("FROID SYSTEM",
+                "Method " + methodName +
+                " is not defined. Make sure your onCreate Function is defined as " +
+                signature, nsm);
+            this.finishAffinity();
         }
 
         Object invokedMethod = null;
@@ -66,8 +71,8 @@ public class FregeAppCompatActivity extends AppCompatActivity {
         try {
             invokedMethod = fregeMethod.invoke(null, args);
         } catch (Exception e) { // none of the invocation exceptions should happen
-            System.err.println("Failed to call " + methodName);
-            System.exit(-1);
+            android.util.Log.e("FROID SYSTEM", "Failed to call " + methodName, e);
+            this.finishAffinity();
         }
         return invokedMethod;
     }
@@ -75,9 +80,9 @@ public class FregeAppCompatActivity extends AppCompatActivity {
     private Object run(Object invokedMethod) {
         if (invokedMethod == null) return null;
         
-        final frege.run7.Func.U<Object,Short> res = frege.run.RunTM.<frege.run7.Func.U<Object,Short>>cast(
+        final Func.U<Object,Short> res = RunTM.<Func.U<Object,Short>>cast(
                 invokedMethod).call();
-        return frege.prelude.PreludeBase.TST.run(res).call();
+        return PreludeBase.TST.run(res).call();
     }
 
     @Override

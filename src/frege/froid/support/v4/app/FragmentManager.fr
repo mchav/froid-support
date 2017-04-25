@@ -1,3 +1,10 @@
+{-
+    Copyright 2016-2017 Michael Chavinda
+    This file is part of froid.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+-}
+
 module froid.support.v4.app.FragmentManager where
 
 import froid.support.v4.app.Fragment
@@ -5,8 +12,8 @@ import froid.support.v4.app.FragmentTransaction
 
 import Java.Util
 
-data FragmentManager = native android.support.v4.app.FragmentManager where
-    native findFragmentById :: MutableIO FragmentManager -> Int -> IO (Maybe (MutableIO Fragment))
-    native beginTransaction :: MutableIO FragmentManager -> IO (MutableIO FragmentTransaction)
-    native popBackStack :: MutableIO FragmentManager -> IO ()
-    native getFragments :: MutableIO FragmentManager -> IO (Maybe (MutableIO (List (MutableIO Fragment))))
+data FragmentManager = mutable native android.support.v4.app.FragmentManager where
+    native findFragmentById :: FragmentManager -> Int -> IO (Maybe Fragment)
+    native beginTransaction :: FragmentManager -> IO FragmentTransaction
+    native popBackStack :: FragmentManager -> IO ()
+    native getFragments :: FragmentManager -> IO (Maybe (MutableIO (List Fragment)))

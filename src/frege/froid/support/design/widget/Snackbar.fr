@@ -1,10 +1,28 @@
+{-
+    Copyright 2016-2017 Michael Chavinda
+    This file is part of froid.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+-}
+
 module froid.support.design.widget.Snackbar where
 
 import froid.view.View
 
-data Snackbar = native android.support.design.widget.Snackbar where
+data Snackbar = mutable native android.support.design.widget.Snackbar where
     native lengthLong "android.support.design.widget.Snackbar.LENGTH_LONG" :: Int
     native lengthShort "android.support.design.widget.Snackbar.LENGTH_SHORT" :: Int
-    native make "android.support.design.widget.Snackbar.make" :: MutableIO View -> String -> Int -> IO (MutableIO Snackbar)
-    native setAction :: MutableIO Snackbar -> String -> MutableIO OnClickListener -> IO (MutableIO Snackbar)
-    native show :: MutableIO Snackbar -> IO ()
+    native make "android.support.design.widget.Snackbar.make" :: View -> String -> Int -> IO (Snackbar)
+    native setAction "froid.support.design.widget.Snackbar.setActionNative" :: Snackbar -> String -> (View -> IO ()) -> IO Snackbar
+    native show :: Snackbar -> IO ()
+
+native module where {
+    private static android.support.design.widget.Snackbar setActionNative(
+        android.support.design.widget.Snackbar sb,
+        String s, Func.U<android.view.View, Func.U<RealWorld,Short>> lambda) {
+        android.view.View.OnClickListener listener = PreludeBase.TST.performUnsafe(
+            froid.view.View.onClick$tick(lambda)).call();
+        sb.setAction(s, listener);
+        return sb;
+    }
+}

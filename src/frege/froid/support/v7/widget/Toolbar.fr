@@ -1,16 +1,21 @@
+{-
+    Copyright 2016-2017 Michael Chavinda
+    This file is part of froid.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+-}
+
 module froid.support.v7.widget.Toolbar where
 
 import froid.view.View
 
 import froid.Types
 
-data Toolbar = native android.support.v7.widget.Toolbar
-
-
-asToolbar :: (Int -> IO (MutableIO View)) -> Int -> IO (MutableIO Toolbar)
-asToolbar find res = do
-    v <- find res
-    (fromView v >>= either (\cce -> error $ "Cast failed.") return) :: IO (MutableIO Toolbar)
+data Toolbar = mutable native android.support.v7.widget.Toolbar where
+    fromView :: (Int -> IO View) -> Int -> IO Toolbar
+    fromView find res = do
+        v <- find res
+        (fromView' v >>= either (\cce -> error $ "Cast failed.") return) :: IO Toolbar
 
 instance ViewSub Toolbar where
-    native fromView "(android.support.v7.widget.Toolbar)" :: MutableIO View -> IO (ClassCastException | MutableIO Toolbar)
+    native fromView' "(android.support.v7.widget.Toolbar)" :: View -> IO (ClassCastException | Toolbar)

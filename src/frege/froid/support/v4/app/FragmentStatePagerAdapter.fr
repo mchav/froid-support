@@ -1,67 +1,55 @@
+{-
+    Copyright 2016-2017 Michael Chavinda
+    This file is part of froid.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+-}
+
 module froid.support.v4.app.FragmentStatePagerAdapter where
 
-import froid.support.v4.app.Fragment
+import froid.support.v4.app.Fragment hiding (Delegator)
 import froid.support.v4.app.FragmentManager
 
-data FragmentStatePagerAdapter = native android.support.v4.app.FragmentStatePagerAdapter
+data FragmentStatePagerAdapter = mutable native android.support.v4.app.FragmentStatePagerAdapter where
+    defaultDelegator = FragmentStatePagerAdapter.Delegator { getItem = Nothing, getCount = Nothing }
+    native mkFragmentPagerAdapter "froid.support.v4.app.FragmentStatePagerAdapter.delegate" :: FragmentStatePagerAdapter.Delegator -> FragmentManager -> IO FragmentStatePagerAdapter
 
-data FspaDelegator = FspaDelegator {
-                      getItem  :: Maybe (MutableIO FragmentStatePagerAdapter -> Int -> IOMutable Fragment)
-                    , getCount :: Maybe (MutableIO FragmentStatePagerAdapter -> IO Int)
-                    }
-
-defaultFspaDelegator = FspaDelegator { getItem = Nothing, getCount = Nothing }
-
-native delegateFspa "froid.support.v4.app.FragmentStatePagerAdapter.delegate" :: FspaDelegator -> MutableIO FragmentManager -> STMutable RealWorld FragmentStatePagerAdapter
+data Delegator = Delegator { getItem  :: Maybe (MutableIO FragmentStatePagerAdapter -> Int -> IOMutable Fragment)
+                           , getCount :: Maybe (MutableIO FragmentStatePagerAdapter -> IO Int)
+                           }
 
 native module where {
-    public static android.support.v4.app.FragmentStatePagerAdapter delegate(TFspaDelegator delegator, android.support.v4.app.FragmentManager fm) {
+    public static android.support.v4.app.FragmentStatePagerAdapter delegate(TDelegator delegator, android.support.v4.app.FragmentManager fm) {
         FregeFragmentStatePagerAdapter fspa = new FregeFragmentStatePagerAdapter(fm, delegator);
         return (android.support.v4.app.FragmentStatePagerAdapter) fspa;
     }
 
     public static class FregeFragmentStatePagerAdapter extends android.support.v4.app.FragmentStatePagerAdapter {
 
-        TFspaDelegator delegator = null;
-        public FregeFragmentStatePagerAdapter(android.support.v4.app.FragmentManager fm, TFspaDelegator delegator) {
+        TDelegator delegator = null;
+        public FregeFragmentStatePagerAdapter(android.support.v4.app.FragmentManager fm, TDelegator delegator) {
             super(fm);
             this.delegator = delegator;
         }
 
         @Override
         public android.support.v4.app.Fragment getItem(int position) {
-            frege.prelude.PreludeBase.TMaybe<
-                Func.U<android.support.v4.app.FragmentStatePagerAdapter, Func.U<Integer, Func.U<RealWorld, android.support.v4.app.Fragment>>>
-            > getItemDelegator = TFspaDelegator.getItem(delegator);
-            PreludeBase.TMaybe.DJust<
-                Func.U<android.support.v4.app.FragmentStatePagerAdapter, Func.U<Integer, Func.U<RealWorld, android.support.v4.app.Fragment>>>
-            > justDelegator = getItemDelegator.asJust();
-            if (justDelegator == null) return null;
-            Func.U<android.support.v4.app.FragmentStatePagerAdapter, Func.U<Integer, Func.U<RealWorld, android.support.v4.app.Fragment>>>
-                gi = (Func.U<android.support.v4.app.FragmentStatePagerAdapter, Func.U<Integer, Func.U<RealWorld, android.support.v4.app.Fragment>>>) 
-                    justDelegator.mem1.call();
-            Func.U<Integer, Func.U<Object, android.support.v4.app.Fragment>>
-                appliedFspa = RunTM.<Func.U<Integer, Func.U<Object, android.support.v4.app.Fragment>>>
-                    cast(gi.apply(Thunk.lazy((android.support.v4.app.FragmentStatePagerAdapter) this)).call()).call();
-            Func.U<Object, android.support.v4.app.Fragment> res = RunTM.<Func.U<Object, android.support.v4.app.Fragment>>cast(appliedFspa.apply(Thunk.<Integer>lazy(position)).call()).call();
-            return (android.support.v4.app.Fragment) PreludeBase.TST.run(res).call();
+            if (TDelegator.getItem(delegator).asJust() != null)
+                return (android.support.v4.app.Fragment) PreludeBase.TST.performUnsafe(
+                    TDelegator.getItem(delegator).asJust().mem1.call()
+                    .apply(Thunk.lazy((android.support.v4.app.FragmentStatePagerAdapter) this)).call()
+                    .apply(Thunk.<Integer>lazy(position)).call()).call();
+            return null;
         }
 
         @Override
         public int getCount() {
-            frege.prelude.PreludeBase.TMaybe<
-                Func.U<android.support.v4.app.FragmentStatePagerAdapter, Func.U<RealWorld, Integer>>
-            > getCountDelegator = TFspaDelegator.getCount(delegator);
-            PreludeBase.TMaybe.DJust<
-                Func.U<android.support.v4.app.FragmentStatePagerAdapter, Func.U<RealWorld, Integer>>
-            > justDelegator = getCountDelegator.asJust();
-            if (justDelegator == null) return 0;
-            Func.U<android.support.v4.app.FragmentStatePagerAdapter, Func.U<RealWorld, Integer>>
-                gc = (Func.U<android.support.v4.app.FragmentStatePagerAdapter, Func.U<RealWorld, Integer>>) 
-                    justDelegator.mem1.call();
-            Func.U<Object, Integer> res = RunTM.<Func.U<Object, Integer>>
-                    cast(gc.apply(Thunk.lazy((android.support.v4.app.FragmentStatePagerAdapter) this)).call()).call();
-            return ((Integer) PreludeBase.TST.run(res).call()).intValue();
+            if (TDelegator.getCount(delegator).asJust() != null)
+                return (int) PreludeBase.TST.performUnsafe(
+                    TDelegator.getCount(delegator).asJust().mem1.call()
+                    .apply(Thunk.lazy((android.support.v4.app.FragmentStatePagerAdapter) this))
+                    .call()).call();
+            return 0;
         }
     }
 }
