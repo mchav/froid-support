@@ -1,0 +1,8 @@
+module froid.support.v4.app.fragmentPagerAdapter.Delegator where
+
+import froid.support.v4.app.Fragment
+
+data Delegator a = Delegator { getItem      :: Maybe (a -> Int -> IOMutable Fragment)
+                             , getCount     :: Maybe (a -> IO Int)
+                             , getPageTitle :: Maybe (a -> Int -> IO CharSequence)
+                             }

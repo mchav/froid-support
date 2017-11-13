@@ -11,6 +11,7 @@ import froid.content.Context
 import froid.content.Intent
 import froid.content.res.Configuration
 import froid.os.Bundle
+import froid.support.v4.app.fragment.Delegator
 import froid.view.ContextMenu
 import froid.view.LayoutInflater
 import froid.view.Menu
@@ -26,24 +27,8 @@ data NativeFragmentActivity = mutable native android.support.v4.app.FragmentActi
     native runOnUiThread :: NativeFragmentActivity -> MutableIO Runnable -> IO ()
     native startActivity :: NativeFragmentActivity -> Intent -> IO ()
 
-data Delegator = Delegator { onActivityCreated      :: Maybe (Fragment -> Maybe Bundle -> IO ())
-                           , onActivityResult       :: Maybe (Fragment -> Int -> Int -> Maybe Intent -> IO ())
-                           , onAttach               :: Maybe (Fragment -> Context -> IO ())
-                           , onAttachFragment       :: Maybe (Fragment -> Fragment -> IO ())
-                           , onConfigurationChanged :: Maybe (Fragment -> Configuration -> IO ())
-                           , onContextItemSelected  :: Maybe (Fragment -> MenuItem -> IO Bool)
-                           , onCreate               :: Maybe (Fragment -> Maybe Bundle -> IO ())
-                           , onCreateAnimation      :: Maybe (Fragment -> Int -> Bool -> Int -> IO Animation)
-                           , onCreateContextMenu    :: Maybe (Fragment -> ContextMenu -> View -> ContextMenuInfo -> IO ()) --overload
-                           , onCreateOptionsMenu    :: Maybe (Fragment -> Menu -> MenuInflater -> IO ())
-                           , onCreateView           :: Maybe (Fragment -> LayoutInflater -> ViewGroup -> Maybe Bundle -> IO View)
-                           , onResume               :: Maybe (Fragment -> IO ())
-                           , onDestroy              :: Maybe (Fragment -> IO ())
-                           , onDetach               :: Maybe (Fragment -> IO ())
-                           }
-
 data Fragment = mutable native android.support.v4.app.Fragment where
-    defaultDelegator :: Fragment.Delegator
+    defaultDelegator :: Delegator Fragment
     defaultDelegator = Delegator { onActivityCreated      = Nothing
                                  , onActivityResult       = Nothing
                                  , onAttach               = Nothing
@@ -65,17 +50,19 @@ data Fragment = mutable native android.support.v4.app.Fragment where
     native onResume :: Fragment -> IO ()
     native setArguments :: Fragment -> Bundle -> IO ()
     native getArguments :: Fragment -> IO (Maybe Bundle)
-    native mk "froid.support.v4.app.Fragment.delegate" :: Fragment.Delegator -> IO Fragment
-    native redelegateFragment "froid.support.v4.app.Fragment.redelegate" :: Fragment -> Fragment.Delegator -> IO Fragment
+    native mk "froid.support.v4.app.Fragment.delegate" :: Delegator Fragment -> IO Fragment
+    native redelegateFragment "froid.support.v4.app.Fragment.redelegate" :: Fragment -> Delegator Fragment -> IO Fragment
 
 native module where {
-    public static android.support.v4.app.Fragment delegate(TDelegator delegator) {
+    public static android.support.v4.app.Fragment delegate(
+        froid.support.v4.app.fragment.Delegator.TDelegator<android.support.v4.app.Fragment> delegator) {
         FregeFragment frag = new FregeFragment();
         frag.setDelegator(delegator);
         return (android.support.v4.app.Fragment) frag;
     }
 
-    public static android.support.v4.app.Fragment redelegate(android.support.v4.app.Fragment frag, TDelegator delegator) {
+    public static android.support.v4.app.Fragment redelegate(android.support.v4.app.Fragment frag,
+        froid.support.v4.app.fragment.Delegator.TDelegator<android.support.v4.app.Fragment> delegator) {
         FregeFragment fragment = (FregeFragment) frag;
         fragment.setDelegator(delegator);
         return (android.support.v4.app.Fragment) fragment;
@@ -83,15 +70,17 @@ native module where {
 
     public static class FregeFragment extends android.support.v4.app.Fragment {
 
-        private static java.util.HashMap<Integer, TDelegator> delegatorMap = new java.util.HashMap<>();
-        TDelegator delegator = null;
+        private static java.util.HashMap<Integer,
+            froid.support.v4.app.fragment.Delegator.TDelegator<android.support.v4.app.Fragment>> delegatorMap =
+            new java.util.HashMap<>();
+        froid.support.v4.app.fragment.Delegator.TDelegator<android.support.v4.app.Fragment> delegator = null;
 
         public FregeFragment() {
             super();
             if (delegator == null) delegator = delegatorMap.get(this.getId());
         }
 
-        public void setDelegator(TDelegator del) {
+        public void setDelegator(froid.support.v4.app.fragment.Delegator.TDelegator<android.support.v4.app.Fragment> del) {
             this.delegator = del;
             delegatorMap.put(this.getId(), del);
         }
@@ -108,9 +97,9 @@ native module where {
              PreludeBase.TMaybe.DNothing.<android.os.Bundle>mk(): 
              PreludeBase.TMaybe.DJust.<android.os.Bundle>mk(Thunk.<android.os.Bundle>lazy(savedInstanceState));
 
-            if (TDelegator.onCreateView(delegator).asJust() != null)
+            if (Delegator.TDelegator.onCreateView(delegator).asJust() != null)
                 return (android.view.View) PreludeBase.TST.performUnsafe(
-                    TDelegator.onCreateView(delegator).asJust().mem1.call()
+                    Delegator.TDelegator.onCreateView(delegator).asJust().mem1.call()
                     .apply(Thunk.lazy((android.support.v4.app.Fragment) this)).call()
                     .apply(Thunk.lazy(inflater)).call()
                     .apply(Thunk.lazy(container)).call()
@@ -121,9 +110,9 @@ native module where {
         @Override
         public void onResume() {
             super.onResume();
-            if (TDelegator.onResume(delegator).asJust() != null)
+            if (Delegator.TDelegator.onResume(delegator).asJust() != null)
                 PreludeBase.TST.performUnsafe(
-                    TDelegator.onResume(delegator).asJust().mem1.call()
+                    Delegator.TDelegator.onResume(delegator).asJust().mem1.call()
                     .apply(Thunk.lazy((android.support.v4.app.Fragment) this))
                     .call()).call();
         }
@@ -131,9 +120,9 @@ native module where {
         @Override
         public void onDestroy() {
             super.onDestroy();
-            if (TDelegator.onDestroy(delegator).asJust() != null)
+            if (Delegator.TDelegator.onDestroy(delegator).asJust() != null)
                 PreludeBase.TST.performUnsafe(
-                    TDelegator.onDestroy(delegator).asJust().mem1.call()
+                    Delegator.TDelegator.onDestroy(delegator).asJust().mem1.call()
                     .apply(Thunk.lazy((android.support.v4.app.Fragment) this))
                     .call()).call();
         }
@@ -141,9 +130,9 @@ native module where {
         @Override
         public void onDetach() {
             super.onDetach();
-            if (TDelegator.onDetach(delegator).asJust() != null)
+            if (Delegator.TDelegator.onDetach(delegator).asJust() != null)
                 PreludeBase.TST.performUnsafe(
-                    TDelegator.onDetach(delegator).asJust().mem1.call()
+                    Delegator.TDelegator.onDetach(delegator).asJust().mem1.call()
                     .apply(Thunk.lazy((android.support.v4.app.Fragment) this))
                     .call()).call();
         }

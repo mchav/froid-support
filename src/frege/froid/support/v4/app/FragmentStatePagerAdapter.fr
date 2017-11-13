@@ -7,7 +7,7 @@
 
 module froid.support.v4.app.FragmentStatePagerAdapter where
 
-import froid.support.v4.app.Fragment hiding (Delegator)
+import froid.support.v4.app.Fragment
 import froid.support.v4.app.FragmentManager
 
 data FragmentStatePagerAdapter = mutable native android.support.v4.app.FragmentStatePagerAdapter where

@@ -7,5 +7,47 @@ $cpJars = [string]::Join(";", $jars)
 $s = ($runtime -split '\n')[0]
 $rtjar = $s.Substring(8, $s.length - 9)
 
+# compile java files
 javac -cp """$cpJars""" -bootclasspath """$rtjar""" -source 1.7 -target 1.7 -d .\build .\src\java\*
-java -Xmx6072m -Xss10M -XX:MaxJavaStackTraceDepth=-1 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xverify:none -cp """$cpJars""" frege.compiler.Main -target 1.7 -d .\build .\src\frege\
+
+# compile frege
+$fregec = "java -Xmx6072m -Xss10M -XX:MaxJavaStackTraceDepth=-1 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xverify:none -cp `"$cpJars`" frege.compiler.Main -target 1.7 -d .\build"
+
+javac -cp """$cpJars""" -bootclasspath """$rtjar""" -source 1.7 -target 1.7 -d .\build .\src\java\*
+
+# compile modules with no dependencies
+Invoke-Expression "$fregec .\src\frege\froid\support\design"
+Invoke-Expression "$fregec .\src\frege\froid\support\v4\app\fragment"
+Invoke-Expression "$fregec .\src\frege\froid\support\v4\app\Fragment.fr"
+Invoke-Expression "$fregec .\src\frege\froid\support\v4\app\FragmentTransaction.fr"
+Invoke-Expression "$fregec .\src\frege\froid\support\v4\app\FragmentManager.fr"
+Invoke-Expression "$fregec .\src\frege\froid\support\v7\app\ActionBar.fr"
+# Invoke-Expression "$fregec .\src\frege\froid\view\ViewGroup.fr"
+# Invoke-Expression "$fregec .\src\frege\froid\widget\CompoundButton.fr"
+# Invoke-Expression "$fregec .\src\frege\froid\view\Menu.fr"
+# Invoke-Expression "$fregec .\src\frege\froid\Types.fr"
+# Invoke-Expression "$fregec .\src\frege\froid\content\res"
+# Invoke-Expression "$fregec .\src\frege\froid\java\nio\IntBuffer.fr"
+# Invoke-Expression "$fregec .\src\frege\froid\animation"
+# Invoke-Expression "$fregec .\src\frege\froid\text\style"
+# Invoke-Expression "$fregec .\src\frege\froid\util"
+
+# compile modules with already compiled dependencies
+# Invoke-Expression "$fregec .\src\frege\froid\media"
+# Invoke-Expression "$fregec .\src\frege\froid\text\Editable.fr"
+# Invoke-Expression "$fregec .\src\frege\froid\text"
+# Invoke-Expression "$fregec .\src\frege\froid\content\Context.fr"
+# Invoke-Expression "$fregec .\src\frege\froid\content\Intent.fr"
+# Invoke-Expression "$fregec .\src\frege\froid\graphics"
+# Invoke-Expression "$fregec .\src\frege\froid\os"
+# Invoke-Expression "$fregec .\src\frege\froid\widget"
+# Invoke-Expression "$fregec .\src\frege\froid\view"
+# Invoke-Expression "$fregec .\src\frege\froid\content\res"
+# Invoke-Expression "$fregec .\src\frege\froid\app\java"
+# Invoke-Expression "$fregec .\src\frege\froid\app"
+# Invoke-Expression "$fregec .\src\frege\froid\app\Activity.fr"
+# Invoke-Expression "$fregec .\src\frege\froid\java"
+# Invoke-Expression "$fregec .\src\frege\froid\javax"
+# Invoke-Expression "$fregec .\src\frege\froid\opengl\glSurfaceView\java"
+# Invoke-Expression "$fregec .\src\frege\froid\opengl\glSurfaceView"
+# Invoke-Expression "$fregec .\src\frege\froid\opengl\GLSurfaceView.fr"

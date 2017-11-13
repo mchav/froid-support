@@ -7,28 +7,28 @@
 
 module froid.support.v4.app.FragmentPagerAdapter where
 
-import froid.support.v4.app.Fragment hiding (Delegator)
+import froid.support.v4.app.Fragment
 import froid.support.v4.app.FragmentManager
+import froid.support.v4.app.fragmentPagerAdapter.Delegator
 
 data FragmentPagerAdapter = mutable native android.support.v4.app.FragmentPagerAdapter where
-    defaultDelegator = FragmentPagerAdapter.Delegator { getItem = Nothing, getCount = Nothing, getPageTitle = Nothing }
+    defaultDelegator :: Delegator FragmentPagerAdapter
+    defaultDelegator = Delegator { getItem = Nothing, getCount = Nothing, getPageTitle = Nothing }
     native mk "froid.support.v4.app.FragmentPagerAdapter.delegate" :: FragmentPagerAdapter.Delegator -> FragmentManager -> IO FragmentPagerAdapter
 
-data Delegator = Delegator { getItem  :: Maybe (MutableIO FragmentPagerAdapter -> Int -> IOMutable Fragment)
-                           , getCount :: Maybe (MutableIO FragmentPagerAdapter -> IO Int)
-                           , getPageTitle :: Maybe (MutableIO FragmentPagerAdapter -> Int -> IO CharSequence)
-                           }
-
 native module where {
-    public static android.support.v4.app.FragmentPagerAdapter delegate(TDelegator delegator, android.support.v4.app.FragmentManager fm) {
+    public static android.support.v4.app.FragmentPagerAdapter delegate(
+        froid.support.v4.app.fragmentPagerAdapter.Delegator.TDelegator<android.support.v4.app.FragmentPagerAdapter> delegator,
+        android.support.v4.app.FragmentManager fm) {
         FregeFragmentPagerAdapter fpa = new FregeFragmentPagerAdapter(fm, delegator);
         return (android.support.v4.app.FragmentPagerAdapter) fpa;
     }
 
     public static class FregeFragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
 
-        TDelegator delegator = null;
-        public FregeFragmentPagerAdapter(android.support.v4.app.FragmentManager fm, TDelegator delegator) {
+        froid.support.v4.app.fragmentPagerAdapter.Delegator.TDelegator<android.support.v4.app.FragmentPagerAdapter> delegator = null;
+        public FregeFragmentPagerAdapter(android.support.v4.app.FragmentManager fm,
+            froid.support.v4.app.fragmentPagerAdapter.Delegator.TDelegator<android.support.v4.app.FragmentPagerAdapter> delegator) {
             super(fm);
             this.delegator = delegator;
         }

@@ -1,0 +1,45 @@
+{-
+    Copyright 2016-2017 Michael Chavinda
+    This file is part of froid.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+-}
+
+module froid.support.v4.app.fragment.Delegator where
+
+import froid.content.Context
+import froid.content.Intent
+import froid.content.res.Configuration
+import froid.os.Bundle
+import froid.view.ContextMenu
+import froid.view.LayoutInflater
+import froid.view.Menu
+import froid.view.MenuInflater
+import froid.view.MenuItem
+import froid.view.View
+import froid.view.ViewGroup
+import froid.view.animation.Animation
+
+import froid.Types
+
+
+{-
+To decouple the implementation of the delegator from the action object
+We make the delegator a generic class that takes in any a that overrides
+The defined functions.
+-}
+data Delegator a = Delegator { onActivityCreated      :: Maybe (a -> Maybe Bundle -> IO ())
+                             , onActivityResult       :: Maybe (a -> Int -> Int -> Maybe Intent -> IO ())
+                             , onAttach               :: Maybe (a -> Context -> IO ())
+                             , onAttachFragment       :: Maybe (a -> IO ())
+                             , onConfigurationChanged :: Maybe (a -> Configuration -> IO ())
+                             , onContextItemSelected  :: Maybe (a -> MenuItem -> IO Bool)
+                             , onCreate               :: Maybe (a -> Maybe Bundle -> IO ())
+                             , onCreateAnimation      :: Maybe (a -> Int -> Bool -> Int -> IO Animation)
+                             , onCreateContextMenu    :: Maybe (a -> ContextMenu -> View -> ContextMenuInfo -> IO ()) --overload
+                             , onCreateOptionsMenu    :: Maybe (a -> Menu -> MenuInflater -> IO ())
+                             , onCreateView           :: Maybe (a -> LayoutInflater -> ViewGroup -> Maybe Bundle -> IO View)
+                             , onResume               :: Maybe (a -> IO ())
+                             , onDestroy              :: Maybe (a -> IO ())
+                             , onDetach               :: Maybe (a -> IO ())
+                             }

@@ -5,15 +5,15 @@
     you may not use this file except in compliance with the License.
 -}
 
-module froid.support.v4.app.DialogFragment where
+module froid.support.v4.app.dialogFragment.Delegator where
 
-import froid.support.v4.app.dialogFragment.Delegator
+import froid.app.Dialog
+import froid.os.Bundle
 
-data DialogFragment = mutable native android.support.v4.app.DialogFragment where
-    native mk "froid.support.v4.app.DialogFragment.delegate" :: Delegator DialogFragment -> IO DialogFragment
+data Delegator a = Delegator { onCreateDialog :: Maybe (a -> Maybe Bundle -> IO Dialog) }
 
 native module where {
-    public static android.support.v4.app.DialogFragment delegate(Delegator.TDelegator delegator) {
+    public static android.support.v4.app.DialogFragment delegate(TDelegator delegator) {
         FregeDialogFragment frag = new FregeDialogFragment();
         frag.setDelegator(delegator);
         return (android.support.v4.app.DialogFragment) frag;
@@ -21,13 +21,13 @@ native module where {
 
     public static class FregeDialogFragment extends android.support.v4.app.DialogFragment {
 
-        Delegator.TDelegator delegator = null;
+        TDelegator delegator = null;
 
         public FregeDialogFragment() {
             super();
         }
 
-        public void setDelegator(Delegator.TDelegator del) {
+        public void setDelegator(TDelegator del) {
             this.delegator = del;
         }
 
@@ -37,9 +37,9 @@ native module where {
              PreludeBase.TMaybe.DNothing.<android.os.Bundle>mk(): 
              PreludeBase.TMaybe.DJust.<android.os.Bundle>mk(Thunk.<android.os.Bundle>lazy(savedInstanceState));
 
-            if (Delegator.TDelegator.onCreateDialog(delegator).asJust() != null)
+            if (TDelegator.onCreateDialog(delegator).asJust() != null)
                 return PreludeBase.TST.performUnsafe(
-                    Delegator.TDelegator.onCreateDialog(delegator).asJust().mem1.call()
+                    TDelegator.onCreateDialog(delegator).asJust().mem1.call()
                     .apply(Thunk.lazy((android.support.v4.app.DialogFragment) this)).call()
                     .apply(Thunk.lazy(sis)).call()).call();
             return null;
